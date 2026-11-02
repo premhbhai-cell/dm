@@ -2,14 +2,16 @@
 // Sabse aasan: start.bat (ya `node server.js`) chalao -> photo folder me daalo -> refresh. Nahi to: `node make-images-list.js --watch` chalao (ya update-images.bat double-click). VS Code me .vscode/tasks.json ye khud chala deta hai.
 // Live site (hosting) ke liye bhi wahi. Folder khali ho to internet ki photos dikhti hain, aapki photos daalte hi wahi dikhengi.
 // Baaki jagah folder khali ho to internet (Unsplash) ki photos dikhti hain.
-const NAME={newborn:'Newborn',kids:'Baby & Kids',maternity:'Maternity',outdoor:'Outdoor',hero:'Studio',gallery:'Gallery'};
+const NAME={newborn:'Newborn',kids:'Baby & Kids',maternity:'Maternity',family:'Family', 'cake-smash':'Cake Smash',outdoor:'Outdoor',hero:'Studio',gallery:'Gallery'};
 const NET={
  hero:['1756982477661-107a1c72c8fd','1538678867871-8a43e7487746','1649880210584-3365f4c4c08b','1527490272553-ba05e1f11ee9'],
  newborn:['1649880210584-3365f4c4c08b','1582486225644-aeacf6aa0b1b','1610901137736-d7cc46657b11','1583007054045-800d870b8249','1596252732610-fce5ac542f8e','1679919996303-1824ae520235','1591161555818-7b9debeccc07','1596034640116-a68045d257fe','1570657891791-e39a9d185540','1608039649006-df579ad70c64','1610901158532-d246c011729e','1619668001914-e53a048bf97a'],
  kids:['1524503033411-c9566986fc8f','1611708314849-8bb91fe0fa56','1620420678517-d45e226dfe6c','1534982841079-afde227ada8f','1527490272553-ba05e1f11ee9','1620420375091-f66a919dcbda','1509924603848-aca5e5f276d7','1503944583220-79d8926ad5e2','1620420522286-994c1e94d863','1597008683704-f14ade4e8a57','1504697140411-97eb65b90c16','1548102245-c79dbcfa9f92','1607453998825-f3f36da5ab18','1505377059067-e285a7bac49b'],
+ family:['1511632765486-a01980e01a18','1641064496126-cf64a61c6fae','1511895426328-dc8714191300'],
+ 'cake-smash':['1509924603848-aca5e5f276d7','1503944583220-79d8926ad5e2','1620420522286-994c1e94d863'],
  maternity:['1538678867871-8a43e7487746','1457342813143-a1ae27448a82','1544784179-ae1535e9f013','1651663303138-4dc283e15992','1586102728466-46b99b3bc411','1493894473891-10fc1e5dbd22','1615766553246-9147b6d50e90','1680987218595-2d514938a72c','1568043625493-2b0633c7c491','1585010873004-923f9a54e54e','1710897869539-a48e3d69a8d7','1625238955965-2d1c8196e8b2','1541956799312-3f9df99e0006'],
  outdoor:['1756982477661-107a1c72c8fd','1597524678053-5e6fef52d8a3','1709216461598-018ae6307dc0','1756982784629-0f4c22a73000','1627007410492-f410bb5ae2d6','1511632765486-a01980e01a18','1641064496126-cf64a61c6fae','1647616927583-1d44a79a38a5','1596510914965-9ae08acae566','1689782243186-ac0da84bb1ff']};
-const CATS=['newborn','kids','maternity','outdoor'],WA='917575867877',EXT=['jpg','jpeg','png','webp','JPG','JPEG','PNG','WEBP'],LIST={},SHOW=10;
+const CATS=['newborn','kids','maternity','family','cake-smash','outdoor'],WA='917575867877',EXT=['jpg','jpeg','png','webp','JPG','JPEG','PNG','WEBP'],LIST={},SHOW=10;
 const DEV=location.protocol=='file:'||/^(localhost|127\.|192\.168\.|10\.|\[::1\])/.test(location.hostname);
 const nat=(a,b)=>a.localeCompare(b,undefined,{numeric:true});
 // image sizes standardised -> same photo = same URL = browser cache hit (faster)
@@ -38,7 +40,7 @@ function setSrc(e){const c=e.dataset.c,i=+e.dataset.i,w=e.dataset.w||800,L=LIST[
  if(L.length&&(i<=L.length||!e.dataset.l)){const full=L[(i-1)%L.length],th=full.replace(/\/([^\/]+)$/,'/thumb/$1'),useT=+w<1200;e.dataset.full=full;
   e.onerror=()=>{if(useT&&e.src.includes('/thumb/')){e.src=full;return}e.onerror=null;if(e.dataset.l)e.replaceWith(ph());else e.src=net(c,i,w)};
   e.src=useT?th:full;return}
- e.onerror=null;e.src=net(c,i,w)}
+ e.onerror=null;if(!L.length||e.dataset.l){e.style.display='none';return}e.src=net(c,i,w)}
 const init=r=>(r||document).querySelectorAll('img[data-c]:not([src])').forEach(e=>{
  // hero ki baaki slides page load ke baad (pehli slide jaldi dikhe)
  if(e.matches('.hs>img:not([data-i="1"])')&&document.readyState!='complete'){if(!e._d){e._d=1;addEventListener('load',()=>setSrc(e),{once:true})}return}
@@ -64,18 +66,18 @@ reveal();
   const r=(a,b)=>{let s='';for(let i=a;i<=b;i++)s+=tag(c,i,600);return `<div class="r5">${s}</div>`};
   g.innerHTML=r(1,5)+r(6,10)});
  const hs=document.querySelector('.hs');
- if(hs){const im=hs.querySelectorAll('img'),dt=hs.querySelector('.dots');let n=0,t;
+ if(hs){const im=hs.querySelectorAll('img'),dt=hs.querySelector('.dots');let n=0,t;if(!have('hero')){im.forEach(x=>x.style.display='none');dt.style.display='none';}
   const go=k=>{n=(k+im.length)%im.length;im.forEach((x,j)=>x.classList.toggle('on',j==n));dt.querySelectorAll('button').forEach((x,j)=>x.classList.toggle('on',j==n))};
   im.forEach((_,k)=>{const b=document.createElement('button');b.ariaLabel='Slide '+(k+1);b.onclick=()=>{go(k);clearInterval(t);t=setInterval(()=>go(n+1),5500)};dt.appendChild(b)});
   go(0);t=setInterval(()=>go(n+1),5500)}
  const g=document.getElementById('gal');
- if(g){const n=have('gallery');let s='';
-  if(n)for(let k=1;k<=n;k++)s+=tag('gallery',k,900,1);
-  else{const m=Math.max(...CATS.map(c=>NET[c].length));for(let k=1;k<=m;k++)CATS.forEach(c=>{if(k<=NET[c].length)s+=tag(c,k,900)})} // folder khali = internet ki photos, mix
+ if(g){const selected=new URLSearchParams(location.search).get('c');let s='';
+  const cats=selected&&([...CATS,'gallery'].includes(selected))?[selected]:['newborn','kids','maternity','family','cake-smash','outdoor'];
+  cats.forEach(c=>{const n=have(c);if(n)for(let k=1;k<=n;k++)s+=tag(c,k,900,1);else if(NET[c])for(let k=1;k<=NET[c].length;k++)s+=tag(c,k,900)});
   g.innerHTML=s}
  init();reveal()})();
 // ===== Reviews slider (reviews.js se data) =====
-(()=>{const box=document.getElementById('rv-s');if(!box||!window.REVIEWS||!REVIEWS.length)return;
+(async()=>{try{const rd=await fetch('/api/site-data');if(rd.ok){const data=await rd.json();window.REVIEWS=(data.reviews||[]).map(x=>({n:x.name,s:x.type,t:x.text,r:5}))}}catch(e){}const box=document.getElementById('rv-s');if(!box||!window.REVIEWS||!REVIEWS.length)return;
  const star='<svg viewBox="0 0 24 24" class="st"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.500l6.100-.9z"/></svg>';
  const card=r=>`<article class="rcard"><div class="stars" aria-label="${r.r||5} star">${star.repeat(r.r||5)}</div><p>“${r.t}”</p><div class="who"><b>${(r.n||'?')[0]}</b><div><strong>${r.n}</strong><span>${r.s||''}</span></div></div></article>`;
  const tr=box.querySelector('.rt'),N=REVIEWS.length;
@@ -97,3 +99,17 @@ const f=document.getElementById('book');
 if(f)f.onsubmit=e=>{e.preventDefault();const d=new FormData(f);
  const m=encodeURIComponent(`Hello DM Studio! Booking enquiry:\nName: ${d.get('n')}\nMobile: ${d.get('m')}\nShoot: ${d.get('s')}\nPackage: ${d.get('p')}\nDate: ${d.get('d')}\nBaby age / details: ${d.get('a')}`);
  open('https://wa.me/'+WA+'?text='+m,'_blank')};
+
+// Admin-managed public website content
+(async()=>{try{const r=await fetch('/api/site-data');if(!r.ok)return;const d=await r.json();
+ const put=(sel,val)=>{if(val)document.querySelectorAll(sel).forEach(e=>e.textContent=val)};
+ if(d.phone){document.querySelectorAll('a[href^="tel:"]').forEach(a=>a.href='tel:'+d.phone.replace(/[^0-9+]/g,''));document.querySelectorAll('a[href^="tel:"]').forEach(a=>{if(a.textContent.match(/[0-9]{7}/))a.textContent=d.phone})}
+ if(d.owner||d.phone){document.querySelectorAll('header .hd p').forEach(e=>{e.innerHTML='';const b=document.createElement('b');b.textContent=d.owner||'Dinesh';e.append(b,document.createTextNode(' · '+(d.phone||'7575867877')+' · Roz 10 AM – 8 PM · Gandhidham'))})}
+ if(d.logo)document.querySelectorAll('header .logo img, footer .logo img').forEach(e=>e.src=d.logo);
+ put('.hs .in h1',d.heroTitle);put('.hs .in p',d.heroText);
+ put('#delivery-title',d.deliveryTitle);put('#delivery-text',d.deliveryText);
+ put('#gallery-title',d.galleryTitle);put('#gallery-text',d.galleryText);
+ put('#outdoor-title',d.outdoorTitle);put('#outdoor-text',d.outdoorText);
+ if(d.packagePrices){const prices=String(d.packagePrices).split(/\\r?\\n/).map(x=>x.trim()).filter(Boolean);document.querySelectorAll('.pc .pr').forEach((el,i)=>{if(prices[i])el.textContent=prices[i]})}
+ if(Array.isArray(d.reviews)&&d.reviews.length){window.REVIEWS=[...(window.REVIEWS||[]).filter(x=>!String(x.t||'').includes('Placeholder')),...d.reviews.map(x=>({n:x.name,s:x.type,t:x.text,r:5}))]}
+ }catch(e){}})();
